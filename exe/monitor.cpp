@@ -73,6 +73,7 @@ Return Value:
                                  OPEN_EXISTING, 
                                  0, 
                                  NULL);
+	//打开驱动设备
 
     if (*monitorDevice == INVALID_HANDLE_VALUE)
     {
@@ -137,7 +138,7 @@ Return Value:
                             &session,
                             &engineHandle
                             );
-
+   //打开BFP引擎
    if (NO_ERROR != result)
    {
       goto cleanup;
@@ -680,10 +681,12 @@ MonitorPrintUsage()
 
 DWORD
 MonitorAppProcessArguments(_In_ int argc, _In_reads_(argc) PCWSTR argv[])
+//APP进程监控的主函数
 {
    if (argc == 2)
    {
       if (_wcsicmp(argv[1], L"addcallouts") == 0)
+		  //添加回调规则
       {
          return MonitorAppAddCallouts();
       }
