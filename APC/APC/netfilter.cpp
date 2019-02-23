@@ -89,7 +89,7 @@ netfilter::~netfilter()
 }
 void netfilter::close_filter()
 {
-	if (winDivertHandle)
+	if (winDivertHandle!=INVALID_HANDLE_VALUE)
 	{
 		for (int i = 0; i < thread_id.size(); i++)
 		{
