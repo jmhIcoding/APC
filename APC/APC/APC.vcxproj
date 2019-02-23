@@ -115,7 +115,7 @@
     <ClInclude Include="windivert.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="dll_main.cpp" />
     <ClCompile Include="netfilter.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
