@@ -8,6 +8,10 @@ typedef struct _rule
 	char direct=0;//方向。0:outbound,1:inbound
 	char proto_type=0;//协议类型 0:tcp,1:udp;
 	unsigned short port;//端口号;都是本地的port
+	int hash()
+	{
+		return  direct << 24 + proto_type << 20 + port;
+	}
 	void tostring(char *buf, int buflen)
 	{
 		memset(buf, 0, buflen);
