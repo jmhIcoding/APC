@@ -39,7 +39,7 @@
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformToolset>v141</PlatformToolset>
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PlatformToolset>v141</PlatformToolset>
@@ -56,11 +56,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\Detours\Detours-4.0.1\include;C:\WinDivert\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Detours\Detours-4.0.1\lib.X86;C:\WinDivert\x86_64;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Detours\Detours-4.0.1\lib.X86;C:\WinDivert\x86;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Detours\Detours-4.0.1\include;C:\WinDivert\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Detours\Detours-4.0.1\lib.X86;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\lib\x64;C:\WinDivert\x86_64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Detours\Detours-4.0.1\lib.X64;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\lib\x64;C:\WinDivert\x86_64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\WinDivert\include;$(IncludePath)</IncludePath>

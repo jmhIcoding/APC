@@ -1,10 +1,11 @@
 #include "netfilter.h"
 #pragma comment(lib,"WS2_32")
-
-//#pragma comment(lib,"detours")
-//#pragma comment(lib,"syelog")
-//#include <detours.h>
+#pragma comment(lib,"detours")
+#pragma comment(lib,"syelog")
+#pragma comment(lib,"WinDivert")
+#include <detours.h>
 #include "util.h"
+/*
 int main()
 {
 	struct sockaddr_in localaddr;
@@ -33,9 +34,9 @@ int main()
 	fprintf(stdout, "bye-bye\n");
 	return 0;
 }
+*/
 
 
-/*
 static LONG dwSlept = 0;
 
 // Target pointer for the uninstrumented Sleep API.
@@ -80,4 +81,3 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 	}
 	return TRUE;
 }
-*/

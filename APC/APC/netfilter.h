@@ -1,9 +1,7 @@
 #pragma once
 #include "APC.h"
-#pragma comment(lib,"WS2_32")
+#include <windivert.h>
 #pragma comment(lib,"WinDivert")
-
-#include "windivert.h"
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
