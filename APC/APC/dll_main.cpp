@@ -28,10 +28,31 @@ int str2hash(char * str, int len)
 }
 //真实的发送函数:tcp send,udp sendto,这两个函数是系统级自带的正确函数
 SOCKET (WINAPI* TrueSocket)( int af,int type, int protocol)=socket;
+int (WINAPI * TrueConnect)(SOCKET s, const struct sockaddr  *name,int namelen) = connect;
 int (WINAPI * TrueSend)(SOCKET s, const char * buf, int len, int flags) = send;
 int (WINAPI* TrueSendto)(SOCKET s,  const char  * buf, int len,  int flags,  const struct sockaddr  *to, int tolen) = sendto;
 int (WINAPI * TrueClosesocket)( SOCKET s) = closesocket;
 //伪造函数的函数
+int WINAPI  SelfConnect(SOCKET s, const struct sockaddr  *name, int namelen)
+{
+	int rst =connect(s, name, namelen);
+	fprintf(fp, "call self connect .\n");
+	filter_rule rule;
+	get_sock_local_info(s, &rule);
+	char rulebuf[32] = { 0 };
+	int hash = rule.hash();
+	if (rule_to_filter_instance.find(hash) == rule_to_filter_instance.end())
+		//不存在对应的规则,生成新的对象
+	{
+		rule.tostring((char *)rulebuf, 32);
+		rule_to_filter_instance[hash] = new netfilter((char*)rulebuf, filter_type_modify);
+		fprintf(fp, rulebuf);
+		fprintf(fp, "\n");
+
+	}
+	fflush(fp);
+	return rst;
+}
 int WINAPI SelfSocket(int af, int type, int protocol)
 {
 	fprintf(fp, "call SelfSocket...\n");
@@ -101,13 +122,12 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 		
 		fp = fopen("C:\\Users\\jmh081701\\Documents\\APC\\APC\\x64\\Debug\\log.txt", "w");
 		fprintf(fp, "DLL ATTACH\n");
-		fprintf(fp, "Send:%X\n", send);
 		fflush(fp);
 	
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 		DetourAttach(&(PVOID&)TrueSocket, SelfSocket);
-
+		DetourAttach(&(PVOID&)TrueConnect, SelfConnect);
 
 		DetourAttach(&(PVOID&)TrueSend, SelfSend);
 ;
@@ -123,6 +143,8 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 		//Send的恢复
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
+		DetourDetach(&(PVOID&)TrueSocket, SelfSocket);
+		DetourDetach(&(PVOID&)TrueConnect, SelfConnect);
 		DetourDetach(&(PVOID&)TrueSend, SelfSend);
 		//Sendto的恢复
 		DetourDetach(&(PVOID&)TrueSendto, SelfSendto);
