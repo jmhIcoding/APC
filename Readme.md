@@ -11,3 +11,4 @@
 		
 		closesocket() :关闭socket。释放过滤对象
 	3. 使用detour的 createProcessWithDLL 只能hook住 socket()函数以及closesocket函数,其他send和sendto都勾不住
+	4. 使用动态注入的方式,往进程里面注入动态加载。
