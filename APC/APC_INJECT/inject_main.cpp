@@ -16,9 +16,10 @@ int main()
 	char * chrome =(char *) "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
 	char *ie = (char *)"C:\\Program Files\\internet explorer\\iexplore.exe";
 	char *client = (char *)"C:\\Users\\jmh081701\\Documents\\APC\\APC\\x64\\Debug\\client.exe";
-	char * appFILE = client;
+	char *netease = (char *) "C:\\Program Files (x86)\\Netease\\CloudMusic\\cloudmusic.exe";
+	char * appFILE = netease;
 	if (TRUE == DetourCreateProcessWithDll(NULL,appFILE, 
-		NULL, NULL, FALSE, 
+		NULL, NULL, TRUE, 
 		NORMAL_PRIORITY_CLASS , NULL, NULL, &si, &pi, DLLFILE, NULL)
 		)
 	{
@@ -29,5 +30,6 @@ int main()
 		fprintf(stderr, "Inject %s error.\n", appFILE);
 		fprintf(stderr, "Error ID:%d\n", GetLastError());
 	}
+	system("pause");
 	return 0;
 }
