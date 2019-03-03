@@ -20,21 +20,21 @@ typedef struct _rule
 			case 1:
 				if (proto_type == 1)
 				{
-					sprintf(buf, "inbound and udp and udp.SrcPort==%d", port);
+					snprintf(buf,buflen, "inbound and udp and udp.SrcPort==%d", port);
 				}
 				else
 				{
-					sprintf(buf, "inbound and tcp and tcp.SrcPort == %d", port);
+					snprintf(buf,buflen, "inbound and tcp and tcp.SrcPort == %d", port);
 				}
 			break;
 		default:
 			if (proto_type == 1)
 			{
-				sprintf(buf, "outbound and udp and udp.SrcPort==%d", port);
+				snprintf(buf, buflen,"outbound and udp and udp.SrcPort==%d", port);
 			}
 			else
 			{
-				sprintf(buf, "outbound and tcp and tcp.SrcPort == %d", port);
+				snprintf(buf,buflen, "outbound and tcp and tcp.SrcPort == %d", port);
 			}
 			break;
 		}
