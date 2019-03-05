@@ -1,5 +1,5 @@
 #include "netfilter.h"
-
+#pragma comment (lib,"windivert.lib")
 
 DWORD sniff_routine(void * handle)
 {
@@ -85,6 +85,7 @@ netfilter::netfilter(char * filter, char filter_type)
 
 netfilter::~netfilter()
 {
+	fprintf(stdout, "filter close....\n");
 	close_filter();
 }
 void netfilter::close_filter()

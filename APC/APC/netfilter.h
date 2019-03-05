@@ -1,7 +1,6 @@
 #pragma once
 #include "APC.h"
 #include <windivert.h>
-#pragma comment(lib,"WinDivert")
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>

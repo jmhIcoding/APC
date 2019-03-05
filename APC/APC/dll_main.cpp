@@ -4,17 +4,18 @@
 	然后另外写程序,使用createProcessWithDll,启动目标进程。
 */
 #include "netfilter.h"
-#pragma comment(lib,"WS2_32")
+#pragma comment(lib,"wsock32")
 #pragma comment(lib,"detours")
 #pragma comment(lib,"syelog")
 #pragma comment(lib,"WinDivert")
+#pragma comment (lib,"windivert.lib")
 #include <windows.h>
 #include <detours.h>
 #include "util.h"
 #include <map>;
 using namespace std;
 FILE * fp;
-map<int, netfilter *> rule_to_filter_instance;
+map<int, netfilter *> * rule_to_filter_instance;
 
 int str2hash(char * str, int len)
 {
@@ -39,13 +40,13 @@ int WINAPI  SelfConnect(SOCKET s, const struct sockaddr  *name, int namelen)
 	fprintf(fp, "call self connect .\n");
 	filter_rule rule;
 	get_sock_local_info(s, &rule);
-	char rulebuf[32] = { 0 };
+	char rulebuf[64] = { 0 };
 	int hash = rule.hash();
-	if (rule_to_filter_instance.find(hash) == rule_to_filter_instance.end())
+	if (rule_to_filter_instance->find(hash) == rule_to_filter_instance->end())
 		//不存在对应的规则,生成新的对象
 	{
-		rule.tostring((char *)rulebuf, 32);
-		rule_to_filter_instance[hash] = new netfilter((char*)rulebuf, filter_type_modify);
+		rule.tostring((char *)rulebuf, 64);
+		(*rule_to_filter_instance)[hash] = new netfilter((char*)rulebuf, filter_type_modify);
 		fprintf(fp, rulebuf);
 		fprintf(fp, "\n");
 
@@ -53,29 +54,56 @@ int WINAPI  SelfConnect(SOCKET s, const struct sockaddr  *name, int namelen)
 	fflush(fp);
 	return rst;
 }
-int WINAPI SelfSocket(int af, int type, int protocol)
+SOCKET WINAPI SelfSocket(int af, int type, int protocol)
 {
 	fprintf(fp, "call SelfSocket...\n");
+	
+	SOCKET s= TrueSocket(af, type, protocol);
+	
+	filter_rule rule;
+	get_sock_local_info(s, &rule);
+	
+	char rulebuf[64] = { 0 };
+	int hash = rule.hash();
+	
+	if (rule_to_filter_instance->find(hash) == rule_to_filter_instance->end())
+		//不存在对应的规则,生成新的对象
+	{
+
+		rule.tostring((char *)rulebuf, 64);
+		(*rule_to_filter_instance)[hash] = new netfilter((char*)rulebuf, filter_type_modify);
+		fprintf(fp, rulebuf);
+		fprintf(fp, "\n");
+
+	}
 	fflush(fp);
-	return TrueSocket(af, type, protocol);
+	fprintf(fp, "create socket %d .\n ", s);
+	fflush(fp);
+	return s;
 }
 int WINAPI SelfSend( SOCKET s,  const char  * buf,  int len,  int flags)
 //自定义的tcp send 函数
 {
 	
+	fprintf(fp, "call SelfSend...\n");
+	fflush(fp);
 	filter_rule rule;
 	get_sock_local_info(s, &rule);
-	char rulebuf[32] = { 0 };
+	char rulebuf[128] = { 0 };
 	int hash = rule.hash();
-	fprintf(fp, "call SelfSend...\n");
-	if (rule_to_filter_instance.find(hash) == rule_to_filter_instance.end())
+	rule.tostring((char *)rulebuf, 128);
+	if (rule_to_filter_instance->find(hash) == rule_to_filter_instance->end())
 		//不存在对应的规则,生成新的对象
 	{
-		rule.tostring((char *)rulebuf, 32);
-		rule_to_filter_instance[hash] = new netfilter((char*)rulebuf, filter_type_modify);
+		(*rule_to_filter_instance)[hash] = new netfilter((char*)rulebuf, filter_type_modify);
 		fprintf(fp, rulebuf);
 		fprintf(fp, "\n");
 		
+	}
+	else
+	{
+
+		fprintf(fp,"Existing rule:%s ...\n",rulebuf);
 	}
 	fflush(fp);
 	return TrueSend(s, buf, len, flags);
@@ -83,16 +111,18 @@ int WINAPI SelfSend( SOCKET s,  const char  * buf,  int len,  int flags)
 int WINAPI SelfSendto(SOCKET s,  const char * buf,  int len, int flags,  const struct sockaddr  *to, int tolen)
 //自定义的udp sendto 函数
 {
+	fprintf(fp, "call self send to\n");
+	fflush(fp);
 	filter_rule rule;
 	get_sock_local_info(s, &rule);
-	char rulebuf[32] = { 0 };
+	char rulebuf[64] = { 0 };
 	int hash = rule.hash();
-	fprintf(fp, "call self send to\n");
-	if (rule_to_filter_instance.find(hash) == rule_to_filter_instance.end())
+	
+	if (rule_to_filter_instance->find(hash) == rule_to_filter_instance->end())
 		//不存在对应的规则,生成新的对象
 	{
-		rule.tostring((char *)rulebuf, 32);
-		rule_to_filter_instance[hash] = new netfilter((char*)rulebuf, filter_type_modify);
+		rule.tostring((char *)rulebuf, 64);
+		(*rule_to_filter_instance)[hash] = new netfilter((char*)rulebuf, filter_type_modify);
 		fprintf(fp, rulebuf);
 		fprintf(fp, "\n");
 		fflush(fp);
@@ -102,14 +132,18 @@ int WINAPI SelfSendto(SOCKET s,  const char * buf,  int len, int flags,  const s
 }
 int WINAPI SelfClosesocket(SOCKET s)
 {
+	fprintf(fp, "Self CloseSocket....\n");
+	fflush(fp);
 	filter_rule rule;
 	get_sock_local_info(s, &rule);
 	int hash = rule.hash();
-	if (rule_to_filter_instance.find(hash) != rule_to_filter_instance.end())
+	if (rule_to_filter_instance->find(hash) != rule_to_filter_instance->end())
 		//存在对应的规则
 	{
-		delete rule_to_filter_instance[hash];
+		delete (*rule_to_filter_instance)[hash];
 	}
+	fprintf(fp, "Self CloseSocket well....\n");
+	fflush(fp);
 	return TrueClosesocket(s);
 }
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
@@ -121,9 +155,10 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 		//Send的注入
 		
 		fp = fopen("C:\\Users\\jmh081701\\Documents\\APC\\APC\\x64\\Debug\\log.txt", "w");
+		rule_to_filter_instance = new map<int, netfilter *>();
 		fprintf(fp, "DLL ATTACH\n");
 		fflush(fp);
-	
+		//MessageBox(NULL, "Inject Sucess", "TIPS", NULL);
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 		DetourAttach(&(PVOID&)TrueSocket, SelfSocket);
@@ -151,7 +186,9 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 		//closeSocket的恢复
 		DetourDetach(&(PVOID&)TrueClosesocket, SelfClosesocket);
 		DetourTransactionCommit();
+		fprintf(fp, "DLL DETACH\n");
 		fclose(fp);
+		delete rule_to_filter_instance;
 	}
 	return TRUE;
 }
