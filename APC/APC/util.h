@@ -48,9 +48,11 @@ void get_sock_local_info(SOCKET socket_fd, filter_rule * rule)
 	WORD socketVersion = MAKEWORD(2, 2);
 	WSADATA wsaData;
 	WSAStartup(socketVersion, &wsaData);
+	localaddrLen = sizeof(localaddr);
 	int ret = getsockname(socket_fd, (struct sockaddr *)&localaddr, &localaddrLen);
 	WSACleanup();
-	rule->port=ntohs(localaddr.sin_port);
+	printf("port:%X,addr:%X\n", localaddr.sin_port,localaddr.sin_addr.S_un.S_addr);
+	rule->port=ntohs( localaddr.sin_port);
 	//printf("sin_famility:%d\n", localaddr.sin_family);
 	//rule->proto_type = localaddr.sin_family == SOCK_STREAM ? 0 : 1;//0:tcp,1:udp
 	//rule->proto_type = 0;//днЪБаДЫРЮЊtcp
